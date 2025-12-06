@@ -5,6 +5,6 @@
   },
   {
     "label": "build",
-    "command": ""
+    "command": "build.sh"
   }
 ]
