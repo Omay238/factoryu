@@ -4,5 +4,6 @@
   "workspace.library": ["../love2d-luacats"],
   "runtime.special": {
     "love.filesystem.load": "loadfile"
-  }
+  },
+  "diagnostics.disable": ["lowercase-global"]
 }

@@ -3,6 +3,9 @@ function love.load()
     s = 64
     m = 3
 
+    cur_rot = 0
+    cur_machine = "miner"
+
     world = {
         {
             x = 0,
@@ -13,7 +16,8 @@ function love.load()
     }
 
     imgs = {
-        miner = love.graphics.newImage("assets/miner.png")
+        miner = love.graphics.newImage("assets/miner.png"),
+        conveyor = love.graphics.newImage("assets/conveyor.png")
     }
 end
 
@@ -60,10 +64,10 @@ function love.draw()
 
     for _, machine in ipairs(world) do
         love.graphics.draw(
-            imgs[machine["machine"]],
-            (machine["x"] * s) + s / 2,
-            (machine["y"] * s) + s / 2,
-            machine["rot"] * math.pi / 2,
+            imgs[machine.machine],
+            (machine.x * s) + s / 2,
+            (machine.y * s) + s / 2,
+            machine.rot * math.pi / 2,
             s / 256,
             s / 256,
             128,
@@ -78,4 +82,20 @@ function love.draw()
         math.floor((love.mouse.getY() + y) / s) * s,
         s, s
     )
+
+    if love.mouse.isDown(1) then
+        table.insert(world, {
+            x = math.floor((love.mouse.getX() + x) / s),
+            y = math.floor((love.mouse.getY() + y) / s),
+            rot = cur_rot,
+            machine = cur_machine
+        })
+    end
+    if love.mouse.isDown(2) then
+        for idx, machine in ipairs(world) do
+            if machine.x == math.floor((love.mouse.getX() + x) / s) and machine.y == math.floor((love.mouse.getY() + y) / s) then
+                table.remove(world, idx)
+            end
+        end
+    end
 end
