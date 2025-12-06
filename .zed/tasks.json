@@ -1,0 +1,10 @@
+[
+  {
+    "label": "run",
+    "command": "love src"
+  },
+  {
+    "label": "build",
+    "command": ""
+  }
+]
