@@ -2,7 +2,18 @@ function love.load()
     x, y = 0, 0
     s = 64
     m = 3
-    world = {}
+
+    world = {
+        {
+            x = 0,
+            y = 0,
+            machine = "miner"
+        }
+    }
+
+    imgs = {
+        miner = love.graphics.newImage("assets/miner.png")
+    }
 end
 
 function love.update()
@@ -33,7 +44,11 @@ function love.draw()
         love.graphics.line(min_scale + xoff, i * s + yoff, max_scale * s + xoff, i * s + yoff)
     end
 
+    for _, machine in ipairs(world) do
+        love.graphics.draw(imgs[machine["machine"]], machine["x"] * s, machine["y"] * s, 0, s / 256);
+    end
+
     love.graphics.setColor(1, 1, 1, 0.2)
-    love.graphics.rectangle("fill", math.floor(love.mouse.getX() / s) * s,
-        math.floor(love.mouse.getY() / s) * s, s, s)
+    love.graphics.rectangle("fill", math.floor((love.mouse.getX() + x) / s) * s,
+        math.floor((love.mouse.getY() + y) / s) * s, s, s)
 end
