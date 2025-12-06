@@ -2,6 +2,7 @@ function love.load()
     x, y = 0, 0
     s = 64
     m = 3
+    world = {}
 end
 
 function love.update()
@@ -21,6 +22,9 @@ end
 
 function love.draw()
     love.graphics.translate(-x, -y)
+    love.graphics.setBackgroundColor(0.45, 0.45, 0.5)
+    love.graphics.setColor(1, 1, 1, 1)
+
     local min_scale = -1
     local max_scale = math.max(love.graphics.getHeight(), love.graphics.getWidth()) / s + 1
     for i = -1, max_scale do
@@ -28,4 +32,8 @@ function love.draw()
         love.graphics.line(i * s + xoff, min_scale + yoff, i * s + xoff, max_scale * s + yoff)
         love.graphics.line(min_scale + xoff, i * s + yoff, max_scale * s + xoff, i * s + yoff)
     end
+
+    love.graphics.setColor(1, 1, 1, 0.2)
+    love.graphics.rectangle("fill", math.floor(love.mouse.getX() / s) * s,
+        math.floor(love.mouse.getY() / s) * s, s, s)
 end
