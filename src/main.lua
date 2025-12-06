@@ -7,6 +7,7 @@ function love.load()
         {
             x = 0,
             y = 0,
+            rot = 0,
             machine = "miner"
         }
     }
@@ -37,18 +38,44 @@ function love.draw()
     love.graphics.setColor(1, 1, 1, 1)
 
     local min_scale = -1
-    local max_scale = math.max(love.graphics.getHeight(), love.graphics.getWidth()) / s + 1
+    local max_scale = math.max(
+        love.graphics.getHeight(),
+        love.graphics.getWidth()
+    ) / s + 1
     for i = -1, max_scale do
         local xoff, yoff = math.floor(x / s) * s, math.floor(y / s) * s
-        love.graphics.line(i * s + xoff, min_scale + yoff, i * s + xoff, max_scale * s + yoff)
-        love.graphics.line(min_scale + xoff, i * s + yoff, max_scale * s + xoff, i * s + yoff)
+        love.graphics.line(
+            i * s + xoff,
+            min_scale + yoff,
+            i * s + xoff,
+            max_scale * s + yoff
+        )
+        love.graphics.line(
+            min_scale + xoff,
+            i * s + yoff,
+            max_scale * s + xoff,
+            i * s + yoff
+        )
     end
 
     for _, machine in ipairs(world) do
-        love.graphics.draw(imgs[machine["machine"]], machine["x"] * s, machine["y"] * s, 0, s / 256);
+        love.graphics.draw(
+            imgs[machine["machine"]],
+            (machine["x"] * s) + s / 2,
+            (machine["y"] * s) + s / 2,
+            machine["rot"] * math.pi / 2,
+            s / 256,
+            s / 256,
+            128,
+            128
+        );
     end
 
     love.graphics.setColor(1, 1, 1, 0.2)
-    love.graphics.rectangle("fill", math.floor((love.mouse.getX() + x) / s) * s,
-        math.floor((love.mouse.getY() + y) / s) * s, s, s)
+    love.graphics.rectangle(
+        "fill",
+        math.floor((love.mouse.getX() + x) / s) * s,
+        math.floor((love.mouse.getY() + y) / s) * s,
+        s, s
+    )
 end
