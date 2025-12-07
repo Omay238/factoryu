@@ -52,6 +52,7 @@ function love.load()
     tick = 0
 
     money = 100
+    power = 250
 
     cur_rot = 0
     cur_machine = "miner"
@@ -61,9 +62,10 @@ function love.load()
 
     imgs = {
         miner = love.graphics.newImage("assets/miner.png"),
-        conveyor = love.graphics.newImage("assets/conveyor.png"),
         smelter = love.graphics.newImage("assets/smelter.png"),
         presser = love.graphics.newImage("assets/presser.png"),
+        power = love.graphics.newImage("assets/power.png"),
+        conveyor = love.graphics.newImage("assets/conveyor.png"),
         crate = love.graphics.newImage("assets/crate.png"),
         ironore = love.graphics.newImage("assets/ironore.png"),
         ironbar = love.graphics.newImage("assets/ironbar.png"),
@@ -73,12 +75,12 @@ function love.load()
         coalore = love.graphics.newImage("assets/coalore.png")
     }
 
-    -- aw man i don't know lua enough to fix this xd
     machines = {
         "miner",
-        "conveyor",
         "smelter",
         "presser",
+        "power",
+        "conveyor",
         "crate"
     }
 end
@@ -107,8 +109,8 @@ function love.update()
         cur_machine = machines[4]
     elseif love.keyboard.isDown("5") then
         cur_machine = machines[5]
-        -- elseif love.keyboard.isDown("6") then
-        --     cur_machine = machines[6]
+    elseif love.keyboard.isDown("6") then
+        cur_machine = machines[6]
         -- elseif love.keyboard.isDown("7") then
         --     cur_machine = machines[7]
         -- elseif love.keyboard.isDown("8") then
@@ -131,6 +133,7 @@ function love.update()
                             age = 0
                         })
                     end
+                    power = power - 4
                 elseif machine.machine == "smelter" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
                     if item ~= nil then
@@ -142,12 +145,22 @@ function love.update()
                             item[2].age = 0
                         end
                     end
+                    power = power - 8
                 elseif machine.machine == "presser" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
                     if item ~= nil then
                         if item[2].item == "ironbar" and item[2].age > 0 then
                             item[2].item = "ironplate"
                             item[2].age = 0
+                        end
+                    end
+                    power = power - 2
+                elseif machine.machine == "power" then
+                    local item = get_world_elem(world_items, machine.x, machine.y)
+                    if item ~= nil then
+                        if item[2].item == "coalore" then
+                            table.remove(world_items, item[1])
+                            power = power + 10
                         end
                     end
                 elseif machine.machine == "crate" then
@@ -194,6 +207,7 @@ function love.update()
                             item[2].y = to_y
                         end
                     end
+                    power = power - 1
                 end
             end
 
@@ -330,6 +344,7 @@ function love.draw()
 
     local elem = get_world_elem(world_machines, coordx, coordy)
     if love.mouse.isDown(1) then
+        local pmoney = money
         if elem ~= nil then
             if elem[2].machine == "miner" then
                 money = money + 25
@@ -337,33 +352,42 @@ function love.draw()
                 money = money + 15
             elseif elem[2].machine == "presser" then
                 money = money + 10
+            elseif elem[2].machine == "power" then
+                money = money + 20
             elseif elem[2].machine == "conveyor" then
                 money = money + 2
             elseif elem[2].machine == "crate" then
                 money = money + 5
             end
-            table.remove(world_machines, elem[1])
         end
-        local pmoney = money
         if cur_machine == "miner" then
             money = money - 25
         elseif cur_machine == "smelter" then
             money = money - 15
         elseif cur_machine == "presser" then
             money = money - 10
+        elseif cur_machine == "power" then
+            money = money - 20
         elseif cur_machine == "conveyor" then
             money = money - 2
         elseif cur_machine == "crate" then
             money = money - 5
         end
-        table.insert(world_machines, {
-            x = math.floor((love.mouse.getX() + x) / s),
-            y = math.floor((love.mouse.getY() + y) / s),
-            rot = cur_rot,
-            machine = cur_machine,
-            ticks = 0,
-            item = ""
-        })
+        if money < 0 then
+            money = pmoney
+        else
+            if elem ~= nil then
+                table.remove(world_machines, elem[1])
+            end
+            table.insert(world_machines, {
+                x = math.floor((love.mouse.getX() + x) / s),
+                y = math.floor((love.mouse.getY() + y) / s),
+                rot = cur_rot,
+                machine = cur_machine,
+                ticks = 0,
+                item = ""
+            })
+        end
     end
     if love.mouse.isDown(2) then
         if elem ~= nil then
@@ -373,6 +397,8 @@ function love.draw()
                 money = money + 15
             elseif elem[2].machine == "presser" then
                 money = money + 10
+            elseif elem[2].machine == "power" then
+                money = money + 20
             elseif elem[2].machine == "conveyor" then
                 money = money + 2
             elseif elem[2].machine == "crate" then
@@ -386,6 +412,7 @@ function love.draw()
     love.graphics.setColor(1, 1, 1, 1)
 
     love.graphics.print("$" .. money, x, y)
+    love.graphics.print(power .. "MW", x, y + 12)
 
     for idx, machine in ipairs(machines) do
         if machine == cur_machine then
