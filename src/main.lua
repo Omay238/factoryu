@@ -64,7 +64,10 @@ function love.load()
         presser = love.graphics.newImage("assets/presser.png"),
         ironore = love.graphics.newImage("assets/ironore.png"),
         ironbar = love.graphics.newImage("assets/ironbar.png"),
-        ironplate = love.graphics.newImage("assets/ironplate.png")
+        ironplate = love.graphics.newImage("assets/ironplate.png"),
+        copperore = love.graphics.newImage("assets/copperore.png"),
+        copperbar = love.graphics.newImage("assets/copperbar.png"),
+        coalore = love.graphics.newImage("assets/coalore.png")
     }
 
     -- aw man i don't know lua enough to fix this xd
@@ -116,17 +119,22 @@ function love.update()
         for idx, machine in ipairs(world_machines) do
             if machine.ticks < tick then
                 if machine.machine == "miner" then
-                    table.insert(world_items, {
-                        x = machine.x,
-                        y = machine.y,
-                        item = "ironore",
-                        age = 0
-                    })
+                    if get_ore_from_pos(machine.x, machine.y) ~= nil then
+                        table.insert(world_items, {
+                            x = machine.x,
+                            y = machine.y,
+                            item = get_ore_from_pos(machine.x, machine.y) .. "ore",
+                            age = 0
+                        })
+                    end
                 elseif machine.machine == "smelter" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
                     if item ~= nil then
                         if item[2].item == "ironore" and item[2].age > 0 then
                             item[2].item = "ironbar"
+                            item[2].age = 0
+                        elseif item[2].item == "copperore" and item[2].age > 0 then
+                            item[2].item = "copperbar"
                             item[2].age = 0
                         end
                     end
