@@ -30,11 +30,11 @@ end
 
 function get_ore_from_pos(ox, oy)
     local noise_val = love.math.noise(ox * 0.1, oy * 0.1)
-    if noise_val < 0.15 then
+    if noise_val < 0.1 then
         return "iron"
-    elseif noise_val > 0.425 and noise_val < 0.575 then
+    elseif noise_val > 0.45 and noise_val < 0.55 then
         return "coal"
-    elseif noise_val > 0.85 then
+    elseif noise_val > 0.9 then
         return "copper"
     else
         return nil
