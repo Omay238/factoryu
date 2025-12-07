@@ -9,12 +9,34 @@ function get_world_elem(mx, my)
     return nil
 end
 
+function get_conveyor_neighbors(mx, my)
+    local neighbors = {}
+    for idx, machine in ipairs(world) do
+        if machine.x == mx and machine.y == my + 1 and machine.rot == 0 then
+            table.insert(neighbors, { idx, machine })
+        end
+        if machine.x == mx - 1 and machine.y == my and machine.rot == 1 then
+            table.insert(neighbors, { idx, machine })
+        end
+        if machine.x == mx and machine.y == my - 1 and machine.rot == 2 then
+            table.insert(neighbors, { idx, machine })
+        end
+        if machine.x == mx + 1 and machine.y == my and machine.rot == 3 then
+            table.insert(neighbors, { idx, machine })
+        end
+    end
+    return neighbors
+end
+
 -- love stuff
 
 function love.load()
+    love.graphics.setBackgroundColor(0.45, 0.45, 0.5)
+
     x, y = 0, 0
     s = 64
     m = 3
+    tick = 0
 
     cur_rot = 0
     cur_machine = "miner"
@@ -40,9 +62,15 @@ function love.update()
     if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
         x = x + m
     end
+
+    if tick % 20 == 0 then
+
+    end
+
+    tick = tick + 1
 end
 
-function love.keypressed(key, scancode, isrepeat)
+function love.keypressed(key, _, isrepeat)
     if key == "q" and isrepeat == false then
         cur_rot = cur_rot - 1
     end
@@ -56,7 +84,6 @@ end
 
 function love.draw()
     love.graphics.translate(-x, -y)
-    love.graphics.setBackgroundColor(0.45, 0.45, 0.5)
     love.graphics.setColor(1, 1, 1, 1)
 
     local min_scale = -1
@@ -93,11 +120,14 @@ function love.draw()
         );
     end
 
+    local coordx = math.floor((love.mouse.getX() + x) / s)
+    local coordy = math.floor((love.mouse.getY() + y) / s)
+
     love.graphics.setColor(1, 1, 1, 0.2)
     love.graphics.draw(
         imgs[cur_machine],
-        math.floor((love.mouse.getX() + x) / s) * s + s / 2,
-        math.floor((love.mouse.getY() + y) / s) * s + s / 2,
+        coordx * s + s / 2,
+        coordy * s + s / 2,
         cur_rot * math.pi / 2,
         s / 256,
         s / 256,
@@ -105,18 +135,21 @@ function love.draw()
         128
     );
 
+    local elem = get_world_elem(coordx, coordy)
     if love.mouse.isDown(1) then
-        if get_world_elem(math.floor((love.mouse.getX() + x) / s), math.floor((love.mouse.getY() + y) / s)) == nil then
-            table.insert(world, {
-                x = math.floor((love.mouse.getX() + x) / s),
-                y = math.floor((love.mouse.getY() + y) / s),
-                rot = cur_rot,
-                machine = cur_machine
-            })
+        if elem ~= nil then
+            table.remove(world, elem[1])
         end
+        table.insert(world, {
+            x = math.floor((love.mouse.getX() + x) / s),
+            y = math.floor((love.mouse.getY() + y) / s),
+            rot = cur_rot,
+            machine = cur_machine,
+            ticks = 0,
+            item = ""
+        })
     end
     if love.mouse.isDown(2) then
-        local elem = get_world_elem(math.floor((love.mouse.getX() + x) / s), math.floor((love.mouse.getY() + y) / s))
         if elem ~= nil then
             table.remove(world, elem[1])
         end
