@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: setup bun
+        uses: oven-sh/setup-bun@v2
       - name: run build script
         run: ./build.sh
       - name: upload windows
@@ -46,7 +48,7 @@ jobs:
       - name: upload web for pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/factoryu
+          path: build/factoryu-web
       - name: deploy
         id: deployment
         uses: actions/deploy-pages@v4
