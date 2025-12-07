@@ -51,6 +51,8 @@ function love.load()
     m = 3
     tick = 0
 
+    money = 100
+
     cur_rot = 0
     cur_machine = "miner"
 
@@ -62,6 +64,7 @@ function love.load()
         conveyor = love.graphics.newImage("assets/conveyor.png"),
         smelter = love.graphics.newImage("assets/smelter.png"),
         presser = love.graphics.newImage("assets/presser.png"),
+        crate = love.graphics.newImage("assets/crate.png"),
         ironore = love.graphics.newImage("assets/ironore.png"),
         ironbar = love.graphics.newImage("assets/ironbar.png"),
         ironplate = love.graphics.newImage("assets/ironplate.png"),
@@ -75,7 +78,8 @@ function love.load()
         "miner",
         "conveyor",
         "smelter",
-        "presser"
+        "presser",
+        "crate"
     }
 end
 
@@ -101,8 +105,8 @@ function love.update()
         cur_machine = machines[3]
     elseif love.keyboard.isDown("4") then
         cur_machine = machines[4]
-        -- elseif love.keyboard.isDown("5") then
-        --     cur_machine = machines[5]
+    elseif love.keyboard.isDown("5") then
+        cur_machine = machines[5]
         -- elseif love.keyboard.isDown("6") then
         --     cur_machine = machines[6]
         -- elseif love.keyboard.isDown("7") then
@@ -144,6 +148,29 @@ function love.update()
                         if item[2].item == "ironbar" and item[2].age > 0 then
                             item[2].item = "ironplate"
                             item[2].age = 0
+                        end
+                    end
+                elseif machine.machine == "crate" then
+                    local item = get_world_elem(world_items, machine.x, machine.y)
+                    if item ~= nil then
+                        if item[2].item == "ironore" then
+                            money = money + 1
+                            table.remove(world_items, item[1])
+                        elseif item[2].item == "ironbar" then
+                            money = money + 4
+                            table.remove(world_items, item[1])
+                        elseif item[2].item == "ironplate" then
+                            money = money + 8
+                            table.remove(world_items, item[1])
+                        elseif item[2].item == "copperore" then
+                            money = money + 1
+                            table.remove(world_items, item[1])
+                        elseif item[2].item == "copperbar" then
+                            money = money + 4
+                            table.remove(world_items, item[1])
+                        elseif item[2].item == "coalore" then
+                            money = money + 1
+                            table.remove(world_items, item[1])
                         end
                     end
                 elseif machine.machine == "conveyor" then
@@ -304,7 +331,30 @@ function love.draw()
     local elem = get_world_elem(world_machines, coordx, coordy)
     if love.mouse.isDown(1) then
         if elem ~= nil then
+            if elem[2].machine == "miner" then
+                money = money + 25
+            elseif elem[2].machine == "smelter" then
+                money = money + 15
+            elseif elem[2].machine == "presser" then
+                money = money + 10
+            elseif elem[2].machine == "conveyor" then
+                money = money + 2
+            elseif elem[2].machine == "crate" then
+                money = money + 5
+            end
             table.remove(world_machines, elem[1])
+        end
+        local pmoney = money
+        if cur_machine == "miner" then
+            money = money - 25
+        elseif cur_machine == "smelter" then
+            money = money - 15
+        elseif cur_machine == "presser" then
+            money = money - 10
+        elseif cur_machine == "conveyor" then
+            money = money - 2
+        elseif cur_machine == "crate" then
+            money = money - 5
         end
         table.insert(world_machines, {
             x = math.floor((love.mouse.getX() + x) / s),
@@ -317,9 +367,25 @@ function love.draw()
     end
     if love.mouse.isDown(2) then
         if elem ~= nil then
+            if elem[2].machine == "miner" then
+                money = money + 25
+            elseif elem[2].machine == "smelter" then
+                money = money + 15
+            elseif elem[2].machine == "presser" then
+                money = money + 10
+            elseif elem[2].machine == "conveyor" then
+                money = money + 2
+            elseif elem[2].machine == "crate" then
+                money = money + 5
+            end
+
             table.remove(world_machines, elem[1])
         end
     end
+
+    love.graphics.setColor(1, 1, 1, 1)
+
+    love.graphics.print("$" .. money, x, y)
 
     for idx, machine in ipairs(machines) do
         if machine == cur_machine then
