@@ -1,0 +1,39 @@
+on:
+  push:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: run build script
+        run: ./build.sh
+      - name: upload windows
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          path: build/factoryu-windows.zip
+      - name: upload macos
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          path: build/factoryu.app.zip
+      - name: upload web
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          path: build/factoryu-web.zip
+      - name: upload love
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          path: build/factoryu.love

@@ -2,7 +2,6 @@ rm -rf build
 mkdir build
 
 # build .love
-rm **/.DS_Store
 cd src
 zip -r -9 ../build/factoryu.love .
 cd ../build
