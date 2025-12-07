@@ -41,6 +41,14 @@ function get_ore_from_pos(ox, oy)
     end
 end
 
+function lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+function is_animating(it)
+    return it.animProgress and it.animProgress < 1.0
+end
+
 -- love stuff
 
 function love.load()
@@ -130,13 +138,17 @@ function love.update()
                             x = machine.x,
                             y = machine.y,
                             item = get_ore_from_pos(machine.x, machine.y) .. "ore",
-                            age = 0
+                            age = 0,
+                            startX = nil,
+                            startY = nil,
+                            animProgress = 1.0,
+                            animDuration = 0.2
                         })
                     end
                     power = power - 4
                 elseif machine.machine == "smelter" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil then
+                    if item ~= nil and not is_animating(item[2]) then
                         if item[2].item == "ironore" and item[2].age > 0 then
                             item[2].item = "ironbar"
                             item[2].age = 0
@@ -148,7 +160,7 @@ function love.update()
                     power = power - 8
                 elseif machine.machine == "presser" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil then
+                    if item ~= nil and not is_animating(item[2]) then
                         if item[2].item == "ironbar" and item[2].age > 0 then
                             item[2].item = "ironplate"
                             item[2].age = 0
@@ -157,15 +169,15 @@ function love.update()
                     power = power - 2
                 elseif machine.machine == "power" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil then
+                    if item ~= nil and not is_animating(item[2]) then
                         if item[2].item == "coalore" then
                             table.remove(world_items, item[1])
-                            power = power + 10
+                            power = power + 16
                         end
                     end
                 elseif machine.machine == "crate" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil then
+                    if item ~= nil and not is_animating(item[2]) then
                         if item[2].item == "ironore" then
                             money = money + 1
                             table.remove(world_items, item[1])
@@ -203,6 +215,9 @@ function love.update()
                     if item ~= nil and to == nil then
                         if item[2].age > 0 then
                             item[2].age = 0
+                            item[2].startX = item[2].x
+                            item[2].startY = item[2].y
+                            item[2].animProgress = 0.0
                             item[2].x = to_x
                             item[2].y = to_y
                         end
@@ -214,7 +229,7 @@ function love.update()
             if machine.machine ~= "conveyor" then
                 local item = get_world_elem(world_items, machine.x, machine.y)
 
-                if item ~= nil then
+                if item ~= nil and not is_animating(item[2]) then
                     local neighbors = get_conveyor_neighbors(world_machines, machine.x, machine.y)
                     if #neighbors > 0 and item[2].age > 0 then
                         local pick = (machine.ticks % #neighbors) + 1
@@ -226,9 +241,10 @@ function love.update()
             end
         end
 
-        for idx, item in ipairs(world_items) do
+        for idx = #world_items, 1, -1 do
+            local item = world_items[idx]
             item.age = item.age + 1
-            if item.age > 16 then
+            if item.age > 16 and not is_animating(item) then
                 table.remove(world_items, idx)
             end
         end
@@ -254,6 +270,16 @@ end
 
 function love.draw()
     love.graphics.translate(-x, -y)
+
+    local dt = love.timer.getDelta()
+    for _, item in ipairs(world_items) do
+        if item.animProgress < 1.0 then
+            item.animProgress = math.min(item.animProgress + dt / item.animDuration, 1.0)
+            if item.animProgress >= 1.0 then
+                item.startX, item.startY = nil, nil
+            end
+        end
+    end
 
     local min_scale = -1
     local max_scale = math.max(
@@ -318,13 +344,22 @@ function love.draw()
     end
 
     for _, item in ipairs(world_items) do
+        local drawX, drawY
+        if item.animProgress < 1.0 and item.startX and item.startY then
+            drawX = lerp(item.startX, item.x, item.animProgress) * s
+            drawY = lerp(item.startY, item.y, item.animProgress) * s
+        else
+            drawX = item.x * s
+            drawY = item.y * s
+        end
+
         love.graphics.draw(
             imgs[item.item],
-            item.x * s,
-            item.y * s,
+            drawX,
+            drawY,
             0,
             s / 256
-        );
+        )
     end
 
     local coordx = math.floor((love.mouse.getX() + x) / s)
