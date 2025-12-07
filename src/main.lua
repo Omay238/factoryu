@@ -28,6 +28,19 @@ function get_conveyor_neighbors(tbl, mx, my)
     return neighbors
 end
 
+function get_ore_from_pos(ox, oy)
+    local noise_val = love.math.noise(ox * 0.1, oy * 0.1)
+    if noise_val < 0.15 then
+        return "iron"
+    elseif noise_val > 0.425 and noise_val < 0.575 then
+        return "coal"
+    elseif noise_val > 0.85 then
+        return "copper"
+    else
+        return nil
+    end
+end
+
 -- love stuff
 
 function love.load()
@@ -192,13 +205,40 @@ end
 
 function love.draw()
     love.graphics.translate(-x, -y)
-    love.graphics.setColor(1, 1, 1, 1)
 
     local min_scale = -1
     local max_scale = math.max(
         love.graphics.getHeight(),
         love.graphics.getWidth()
     ) / s + 1
+
+    for xoff = -1, max_scale do
+        for yoff = -1, max_scale do
+            local xcoord, ycoord = math.floor(x / s) + xoff, math.floor(y / s) + yoff
+            local ore = get_ore_from_pos(xcoord, ycoord)
+
+            if ore == "iron" then
+                love.graphics.setColor(0.91, 0.78, 0.69) -- iron
+            elseif ore == "coal" then
+                love.graphics.setColor(0.25, 0.2, 0.2)   -- coal
+            elseif ore == "copper" then
+                love.graphics.setColor(0.73, 0.4, 0.13)  -- copper
+            else
+                love.graphics.setColor(0.45, 0.45, 0.5)  -- floor
+            end
+
+            love.graphics.rectangle(
+                "fill",
+                xcoord * s,
+                ycoord * s,
+                s,
+                s
+            )
+        end
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
+
     for i = -1, max_scale do
         local xoff, yoff = math.floor(x / s) * s, math.floor(y / s) * s
         love.graphics.line(
@@ -282,7 +322,7 @@ function love.draw()
 
         love.graphics.draw(
             imgs[machine],
-            s * -0.5 + idx * s * 2 + x,
+            s * 0.5 + idx * s + x,
             s * 7.5 + y,
             cur_rot * math.pi / 2,
             s / 256,
