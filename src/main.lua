@@ -1,3 +1,16 @@
+-- helper functions for managing world state
+
+function get_world_elem(mx, my)
+    for idx, machine in ipairs(world) do
+        if machine.x == mx and machine.y == my then
+            return { idx, machine }
+        end
+    end
+    return nil
+end
+
+-- love stuff
+
 function love.load()
     x, y = 0, 0
     s = 64
@@ -93,18 +106,19 @@ function love.draw()
     );
 
     if love.mouse.isDown(1) then
-        table.insert(world, {
-            x = math.floor((love.mouse.getX() + x) / s),
-            y = math.floor((love.mouse.getY() + y) / s),
-            rot = cur_rot,
-            machine = cur_machine
-        })
+        if get_world_elem(math.floor((love.mouse.getX() + x) / s), math.floor((love.mouse.getY() + y) / s)) == nil then
+            table.insert(world, {
+                x = math.floor((love.mouse.getX() + x) / s),
+                y = math.floor((love.mouse.getY() + y) / s),
+                rot = cur_rot,
+                machine = cur_machine
+            })
+        end
     end
     if love.mouse.isDown(2) then
-        for idx, machine in ipairs(world) do
-            if machine.x == math.floor((love.mouse.getX() + x) / s) and machine.y == math.floor((love.mouse.getY() + y) / s) then
-                table.remove(world, idx)
-            end
+        local elem = get_world_elem(math.floor((love.mouse.getX() + x) / s), math.floor((love.mouse.getY() + y) / s))
+        if elem ~= nil then
+            table.remove(world, elem[1])
         end
     end
 end
