@@ -48,15 +48,18 @@ function love.load()
         miner = love.graphics.newImage("assets/miner.png"),
         conveyor = love.graphics.newImage("assets/conveyor.png"),
         smelter = love.graphics.newImage("assets/smelter.png"),
+        presser = love.graphics.newImage("assets/presser.png"),
         ironore = love.graphics.newImage("assets/ironore.png"),
-        ironbar = love.graphics.newImage("assets/ironbar.png")
+        ironbar = love.graphics.newImage("assets/ironbar.png"),
+        ironplate = love.graphics.newImage("assets/ironplate.png")
     }
 
     -- aw man i don't know lua enough to fix this xd
     machines = {
         "miner",
         "conveyor",
-        "smelter"
+        "smelter",
+        "presser"
     }
 end
 
@@ -80,8 +83,8 @@ function love.update()
         cur_machine = machines[2]
     elseif love.keyboard.isDown("3") then
         cur_machine = machines[3]
-        -- elseif love.keyboard.isDown("4") then
-        --     cur_machine = machines[4]
+    elseif love.keyboard.isDown("4") then
+        cur_machine = machines[4]
         -- elseif love.keyboard.isDown("5") then
         --     cur_machine = machines[5]
         -- elseif love.keyboard.isDown("6") then
@@ -111,6 +114,14 @@ function love.update()
                     if item ~= nil then
                         if item[2].item == "ironore" and item[2].age > 0 then
                             item[2].item = "ironbar"
+                            item[2].age = 0
+                        end
+                    end
+                elseif machine.machine == "presser" then
+                    local item = get_world_elem(world_items, machine.x, machine.y)
+                    if item ~= nil then
+                        if item[2].item == "ironbar" and item[2].age > 0 then
+                            item[2].item = "ironplate"
                             item[2].age = 0
                         end
                     end
@@ -262,9 +273,13 @@ function love.draw()
         end
     end
 
-    love.graphics.setColor(1, 1, 1, 0.4)
-
     for idx, machine in ipairs(machines) do
+        if machine == cur_machine then
+            love.graphics.setColor(1, 1, 1, 0.8)
+        else
+            love.graphics.setColor(1, 1, 1, 0.4)
+        end
+
         love.graphics.draw(
             imgs[machine],
             s * -0.5 + idx * s * 2 + x,
