@@ -54,13 +54,16 @@ function love.load()
     imgs = {
         miner = love.graphics.newImage("assets/miner.png"),
         conveyor = love.graphics.newImage("assets/conveyor.png"),
-        ironore = love.graphics.newImage("assets/ironore.png")
+        smelter = love.graphics.newImage("assets/smelter.png"),
+        ironore = love.graphics.newImage("assets/ironore.png"),
+        ironbar = love.graphics.newImage("assets/ironbar.png")
     }
 
     -- aw man i don't know lua enough to fix this xd
     machines = {
         "miner",
-        "conveyor"
+        "conveyor",
+        "smelter"
     }
 end
 
@@ -82,8 +85,8 @@ function love.update()
         cur_machine = machines[1]
     elseif love.keyboard.isDown("2") then
         cur_machine = machines[2]
-        -- elseif love.keyboard.isDown("3") then
-        --     cur_machine = machines[3]
+    elseif love.keyboard.isDown("3") then
+        cur_machine = machines[3]
         -- elseif love.keyboard.isDown("4") then
         --     cur_machine = machines[4]
         -- elseif love.keyboard.isDown("5") then
@@ -145,15 +148,21 @@ function love.update()
                                 end
                             end
                         end
-                    elseif machine.machine == "miner" then
+                    elseif machine.machine ~= "conveyor" then
+                        if machine.machine == "miner" then
+                            world_copy[idx].item = "ironore"
+                        elseif machine.machine == "smelter" then
+                            if machine.item == "ironore" then
+                                world_copy[idx].item = "ironbar"
+                            end
+                        end
+
                         local neighbors = get_conveyor_neighbors(machine.x, machine.y)
 
                         if #neighbors > 0 then
                             world_copy[neighbors[(machine.ticks % #neighbors) + 1][1]].item = machine.item
                             world_copy[idx].item = ""
                         end
-
-                        world_copy[idx].item = "ironore"
 
                         world_copy[idx].ticks = tick
                     end
