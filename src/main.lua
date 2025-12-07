@@ -41,7 +41,8 @@ function love.load()
     cur_rot = 0
     cur_machine = "miner"
 
-    world = {}
+    world_machines = {}
+    world_items = {}
 
     imgs = {
         miner = love.graphics.newImage("assets/miner.png"),
@@ -96,73 +97,72 @@ function love.update()
     end
 
     if tick % 20 == 0 then
-        local incoming = {}
-        local produced = {}
-
-        for i = 1, #world do
-            incoming[i] = nil
-            produced[i] = nil
-        end
-
-        for idx, machine in ipairs(world) do
+        for idx, machine in ipairs(world_machines) do
             if machine.ticks < tick then
                 if machine.machine == "miner" then
-                    produced[idx] = "ironore"
+                    table.insert(world_items, {
+                        x = machine.x,
+                        y = machine.y,
+                        item = "ironore",
+                        age = 0
+                    })
                 elseif machine.machine == "smelter" then
-                    if machine.item == "ironore" then
-                        produced[idx] = "ironbar"
+                    local item = get_world_elem(world_items, machine.x, machine.y)
+                    if item ~= nil then
+                        if item[2].item == "ironore" and item[2].age > 0 then
+                            item[2].item = "ironbar"
+                            item[2].age = 0
+                        end
                     end
-                elseif machine.machine == "conveyor" and machine.item ~= "" then
-                    local tx, ty = machine.x, machine.y
+                elseif machine.machine == "conveyor" then
+                    local item = get_world_elem(world_items, machine.x, machine.y)
+                    local to_x = machine.x
+                    local to_y = machine.y
                     if machine.rot == 0 then
-                        ty = ty - 1
+                        to_y = to_y - 1
                     elseif machine.rot == 1 then
-                        tx = tx + 1
+                        to_x = to_x + 1
                     elseif machine.rot == 2 then
-                        ty = ty + 1
+                        to_y = to_y + 1
                     elseif machine.rot == 3 then
-                        tx = tx - 1
+                        to_x = to_x - 1
                     end
-
-                    local nxt = get_world_elem(world, tx, ty)
-                    if nxt ~= nil and nxt[2].item == "" and incoming[nxt[1]] == nil then
-                        incoming[nxt[1]] = machine.item
-                        machine.item = ""
-                    end
-                end
-            end
-        end
-
-        for idx, machine in ipairs(world) do
-            if machine.ticks < tick and machine.machine ~= "conveyor" then
-                if produced[idx] ~= nil then
-                    machine.item = produced[idx]
-                end
-
-                if machine.item ~= "" then
-                    local neighbors = get_conveyor_neighbors(world, machine.x, machine.y)
-                    if #neighbors > 0 then
-                        local pick = (tick % #neighbors) + 1
-                        local dest = neighbors[pick][1]
-
-                        if world[dest].item == "" and incoming[dest] == nil then
-                            incoming[dest] = machine.item
-                            machine.item = ""
+                    local to = get_world_elem(world_items, to_x, to_y)
+                    if item ~= nil and to == nil then
+                        if item[2].age > 0 then
+                            item[2].age = 0
+                            item[2].x = to_x
+                            item[2].y = to_y
                         end
                     end
                 end
             end
+
+            if machine.machine ~= "conveyor" then
+                local item = get_world_elem(world_items, machine.x, machine.y)
+
+                if item ~= nil then
+                    local neighbors = get_conveyor_neighbors(world_machines, machine.x, machine.y)
+                    if #neighbors > 0 and item[2].age > 0 then
+                        local pick = (machine.ticks % #neighbors) + 1
+                        item[2].x = neighbors[pick][2].x
+                        item[2].y = neighbors[pick][2].y
+                        item[2].age = 0
+                    end
+                end
+            end
         end
 
-        for i = 1, #world do
-            local item = incoming[i]
-            if item ~= nil then
-                world[i].item = item
+        for idx, item in ipairs(world_items) do
+            item.age = item.age + 1
+            if item.age > 16 then
+                table.remove(world_items, idx)
             end
-            world[i].ticks = tick
+        end
+        for idx, machine in ipairs(world_machines) do
+            machine.ticks = machine.ticks + 1
         end
     end
-
 
     tick = tick + 1
 end
@@ -204,7 +204,7 @@ function love.draw()
         )
     end
 
-    for _, machine in ipairs(world) do
+    for _, machine in ipairs(world_machines) do
         love.graphics.draw(
             imgs[machine.machine],
             (machine.x * s) + s / 2,
@@ -215,19 +215,16 @@ function love.draw()
             128,
             128
         );
+    end
 
-        if machine.item ~= "" then
-            love.graphics.draw(
-                imgs[machine.item],
-                (machine.x * s) + s / 2,
-                (machine.y * s) + s / 2,
-                machine.rot * math.pi / 2,
-                s / 256,
-                s / 256,
-                128,
-                128
-            );
-        end
+    for _, item in ipairs(world_items) do
+        love.graphics.draw(
+            imgs[item.item],
+            item.x * s,
+            item.y * s,
+            0,
+            s / 256
+        );
     end
 
     local coordx = math.floor((love.mouse.getX() + x) / s)
@@ -245,12 +242,12 @@ function love.draw()
         128
     );
 
-    local elem = get_world_elem(world, coordx, coordy)
+    local elem = get_world_elem(world_machines, coordx, coordy)
     if love.mouse.isDown(1) then
         if elem ~= nil then
-            table.remove(world, elem[1])
+            table.remove(world_machines, elem[1])
         end
-        table.insert(world, {
+        table.insert(world_machines, {
             x = math.floor((love.mouse.getX() + x) / s),
             y = math.floor((love.mouse.getY() + y) / s),
             rot = cur_rot,
@@ -261,7 +258,7 @@ function love.draw()
     end
     if love.mouse.isDown(2) then
         if elem ~= nil then
-            table.remove(world, elem[1])
+            table.remove(world_machines, elem[1])
         end
     end
 
