@@ -64,7 +64,49 @@ function love.update()
     end
 
     if tick % 20 == 0 then
-
+        for _, machine in ipairs(world) do
+            if machine.machine == "conveyor" and machine.item ~= "" then
+                if machine.rot == 0 then
+                    local machine2 = get_world_elem(machine.x, machine.y - 1)
+                    if machine2 ~= nil then
+                        if machine2[2].item == "" then
+                            machine2[2].item = machine.item
+                            machine.item = ""
+                            machine.tick = machine.tick + 1
+                        end
+                    end
+                elseif machine.rot == 1 then
+                    local machine2 = get_world_elem(machine.x + 1, machine.y)
+                    if machine2 ~= nil then
+                        if machine2[2].item == "" then
+                            machine2[2].item = machine.item
+                            machine.item = ""
+                            machine.tick = machine.tick + 1
+                        end
+                    end
+                elseif machine.rot == 2 then
+                    local machine2 = get_world_elem(machine.x, machine.y + 1)
+                    if machine2 ~= nil then
+                        if machine2[2].item == "" then
+                            machine2[2].item = machine.item
+                            machine.item = ""
+                            machine.tick = machine.tick + 1
+                        end
+                    end
+                elseif machine.rot == 3 then
+                    local machine2 = get_world_elem(machine.x + 1, machine.y)
+                    if machine2 ~= nil then
+                        if machine2[2].item == "" then
+                            machine2[2].item = machine.item
+                            machine.item = ""
+                            machine.tick = machine.tick + 1
+                        end
+                    end
+                end
+            elseif machine.machine == "miner" then
+                machine.item = "iron"
+            end
+        end
     end
 
     tick = tick + 1
