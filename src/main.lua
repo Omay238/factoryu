@@ -28,6 +28,14 @@ function get_conveyor_neighbors(mx, my)
     return neighbors
 end
 
+-- https://gist.github.com/tylerneylon/81333721109155b2d244
+function copy(obj)
+    if type(obj) ~= 'table' then return obj end
+    local res = {}
+    for k, v in pairs(obj) do res[copy(k)] = copy(v) end
+    return res
+end
+
 -- love stuff
 
 function love.load()
@@ -93,58 +101,66 @@ function love.update()
     end
 
     if tick % 20 == 0 then
-        for _, machine in ipairs(world) do
-            if machine.machine == "conveyor" and machine.item ~= "" then
-                if machine.rot == 0 then
-                    local machine2 = get_world_elem(machine.x, machine.y - 1)
-                    if machine2 ~= nil then
-                        if machine2[2].item == "" then
-                            machine2[2].item = machine.item
-                            machine.item = ""
-                            machine.ticks = machine.ticks + 1
+        local world_copy = copy(world)
+        local num_attempts = 0
+        while num_attempts < 32 do
+            num_attempts = num_attempts + 1
+            for idx, machine in ipairs(world) do
+                if machine.ticks < tick then
+                    if machine.machine == "conveyor" and machine.item ~= "" then
+                        if machine.rot == 0 then
+                            local machine2 = get_world_elem(machine.x, machine.y - 1)
+                            if machine2 ~= nil then
+                                if machine2[2].item == "" then
+                                    world_copy[machine2[1]].item = machine.item
+                                    world_copy[idx].item = ""
+                                    world_copy[idx].ticks = tick
+                                end
+                            end
+                        elseif machine.rot == 1 then
+                            local machine2 = get_world_elem(machine.x + 1, machine.y)
+                            if machine2 ~= nil then
+                                if machine2[2].item == "" then
+                                    world_copy[machine2[1]].item = machine.item
+                                    world_copy[idx].item = ""
+                                    world_copy[idx].ticks = tick
+                                end
+                            end
+                        elseif machine.rot == 2 then
+                            local machine2 = get_world_elem(machine.x, machine.y + 1)
+                            if machine2 ~= nil then
+                                if machine2[2].item == "" then
+                                    world_copy[machine2[1]].item = machine.item
+                                    world_copy[idx].item = ""
+                                    world_copy[idx].ticks = tick
+                                end
+                            end
+                        elseif machine.rot == 3 then
+                            local machine2 = get_world_elem(machine.x - 1, machine.y)
+                            if machine2 ~= nil then
+                                if machine2[2].item == "" then
+                                    world_copy[machine2[1]].item = machine.item
+                                    world_copy[idx].item = ""
+                                    world_copy[idx].ticks = tick
+                                end
+                            end
                         end
-                    end
-                elseif machine.rot == 1 then
-                    local machine2 = get_world_elem(machine.x + 1, machine.y)
-                    if machine2 ~= nil then
-                        if machine2[2].item == "" then
-                            machine2[2].item = machine.item
-                            machine.item = ""
-                            machine.ticks = machine.ticks + 1
+                    elseif machine.machine == "miner" then
+                        local neighbors = get_conveyor_neighbors(machine.x, machine.y)
+
+                        if #neighbors > 0 then
+                            world_copy[neighbors[(machine.ticks % #neighbors) + 1][1]].item = machine.item
+                            world_copy[idx].item = ""
                         end
-                    end
-                elseif machine.rot == 2 then
-                    local machine2 = get_world_elem(machine.x, machine.y + 1)
-                    if machine2 ~= nil then
-                        if machine2[2].item == "" then
-                            machine2[2].item = machine.item
-                            machine.item = ""
-                            machine.ticks = machine.ticks + 1
-                        end
-                    end
-                elseif machine.rot == 3 then
-                    local machine2 = get_world_elem(machine.x + 1, machine.y)
-                    if machine2 ~= nil then
-                        if machine2[2].item == "" then
-                            machine2[2].item = machine.item
-                            machine.item = ""
-                            machine.ticks = machine.ticks + 1
-                        end
+
+                        world_copy[idx].item = "ironore"
+
+                        world_copy[idx].ticks = tick
                     end
                 end
-            elseif machine.machine == "miner" then
-                local neighbors = get_conveyor_neighbors(machine.x, machine.y)
-
-                if #neighbors > 0 then
-                    neighbors[(machine.ticks % #neighbors) + 1][2].item = machine.item
-                    machine.item = ""
-                end
-
-                machine.item = "ironore"
-
-                machine.ticks = machine.ticks + 1
             end
         end
+        world = world_copy
     end
 
     tick = tick + 1
