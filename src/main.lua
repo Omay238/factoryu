@@ -12,16 +12,16 @@ end
 function get_conveyor_neighbors(mx, my)
     local neighbors = {}
     for idx, machine in ipairs(world) do
-        if machine.x == mx and machine.y == my + 1 and machine.rot == 0 then
+        if machine.x == mx and machine.y == my - 1 and machine.rot == 0 and machine.machine == "conveyor" then
             table.insert(neighbors, { idx, machine })
         end
-        if machine.x == mx - 1 and machine.y == my and machine.rot == 1 then
+        if machine.x == mx + 1 and machine.y == my and machine.rot == 1 and machine.machine == "conveyor" then
             table.insert(neighbors, { idx, machine })
         end
-        if machine.x == mx and machine.y == my - 1 and machine.rot == 2 then
+        if machine.x == mx and machine.y == my + 1 and machine.rot == 2 and machine.machine == "conveyor" then
             table.insert(neighbors, { idx, machine })
         end
-        if machine.x == mx + 1 and machine.y == my and machine.rot == 3 then
+        if machine.x == mx - 1 and machine.y == my and machine.rot == 3 and machine.machine == "conveyor" then
             table.insert(neighbors, { idx, machine })
         end
     end
@@ -45,7 +45,14 @@ function love.load()
 
     imgs = {
         miner = love.graphics.newImage("assets/miner.png"),
-        conveyor = love.graphics.newImage("assets/conveyor.png")
+        conveyor = love.graphics.newImage("assets/conveyor.png"),
+        ironore = love.graphics.newImage("assets/ironore.png")
+    }
+
+    -- aw man i don't know lua enough to fix this xd
+    machines = {
+        "miner",
+        "conveyor"
     }
 end
 
@@ -63,6 +70,28 @@ function love.update()
         x = x + m
     end
 
+    if love.keyboard.isDown("1") then
+        cur_machine = machines[1]
+    elseif love.keyboard.isDown("2") then
+        cur_machine = machines[2]
+        -- elseif love.keyboard.isDown("3") then
+        --     cur_machine = machines[3]
+        -- elseif love.keyboard.isDown("4") then
+        --     cur_machine = machines[4]
+        -- elseif love.keyboard.isDown("5") then
+        --     cur_machine = machines[5]
+        -- elseif love.keyboard.isDown("6") then
+        --     cur_machine = machines[6]
+        -- elseif love.keyboard.isDown("7") then
+        --     cur_machine = machines[7]
+        -- elseif love.keyboard.isDown("8") then
+        --     cur_machine = machines[8]
+        -- elseif love.keyboard.isDown("9") then
+        --     cur_machine = machines[9]
+        -- elseif love.keyboard.isDown("0") then
+        --     cur_machine = machines[10]
+    end
+
     if tick % 20 == 0 then
         for _, machine in ipairs(world) do
             if machine.machine == "conveyor" and machine.item ~= "" then
@@ -72,7 +101,7 @@ function love.update()
                         if machine2[2].item == "" then
                             machine2[2].item = machine.item
                             machine.item = ""
-                            machine.tick = machine.tick + 1
+                            machine.ticks = machine.ticks + 1
                         end
                     end
                 elseif machine.rot == 1 then
@@ -81,7 +110,7 @@ function love.update()
                         if machine2[2].item == "" then
                             machine2[2].item = machine.item
                             machine.item = ""
-                            machine.tick = machine.tick + 1
+                            machine.ticks = machine.ticks + 1
                         end
                     end
                 elseif machine.rot == 2 then
@@ -90,7 +119,7 @@ function love.update()
                         if machine2[2].item == "" then
                             machine2[2].item = machine.item
                             machine.item = ""
-                            machine.tick = machine.tick + 1
+                            machine.ticks = machine.ticks + 1
                         end
                     end
                 elseif machine.rot == 3 then
@@ -99,12 +128,21 @@ function love.update()
                         if machine2[2].item == "" then
                             machine2[2].item = machine.item
                             machine.item = ""
-                            machine.tick = machine.tick + 1
+                            machine.ticks = machine.ticks + 1
                         end
                     end
                 end
             elseif machine.machine == "miner" then
-                machine.item = "iron"
+                local neighbors = get_conveyor_neighbors(machine.x, machine.y)
+
+                if #neighbors > 0 then
+                    neighbors[(machine.ticks % #neighbors) + 1][2].item = machine.item
+                    machine.item = ""
+                end
+
+                machine.item = "ironore"
+
+                machine.ticks = machine.ticks + 1
             end
         end
     end
@@ -160,6 +198,19 @@ function love.draw()
             128,
             128
         );
+
+        if machine.item ~= "" then
+            love.graphics.draw(
+                imgs[machine.item],
+                (machine.x * s) + s / 2,
+                (machine.y * s) + s / 2,
+                machine.rot * math.pi / 2,
+                s / 256,
+                s / 256,
+                128,
+                128
+            );
+        end
     end
 
     local coordx = math.floor((love.mouse.getX() + x) / s)
@@ -195,5 +246,20 @@ function love.draw()
         if elem ~= nil then
             table.remove(world, elem[1])
         end
+    end
+
+    love.graphics.setColor(1, 1, 1, 0.4)
+
+    for idx, machine in ipairs(machines) do
+        love.graphics.draw(
+            imgs[machine],
+            s * -0.5 + idx * s * 2 + x,
+            s * 7.5 + y,
+            cur_rot * math.pi / 2,
+            s / 256,
+            s / 256,
+            128,
+            128
+        )
     end
 end
