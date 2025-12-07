@@ -6,14 +6,7 @@ function love.load()
     cur_rot = 0
     cur_machine = "miner"
 
-    world = {
-        {
-            x = 0,
-            y = 0,
-            rot = 0,
-            machine = "miner"
-        }
-    }
+    world = {}
 
     imgs = {
         miner = love.graphics.newImage("assets/miner.png"),
@@ -34,6 +27,18 @@ function love.update()
     if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
         x = x + m
     end
+end
+
+function love.keypressed(key, scancode, isrepeat)
+    if key == "q" and isrepeat == false then
+        cur_rot = cur_rot - 1
+    end
+    if key == "e" and isrepeat == false then
+        cur_rot = cur_rot + 1
+    end
+
+    if cur_rot == -1 then cur_rot = 3 end
+    if cur_rot == 4 then cur_rot = 0 end
 end
 
 function love.draw()
@@ -76,12 +81,16 @@ function love.draw()
     end
 
     love.graphics.setColor(1, 1, 1, 0.2)
-    love.graphics.rectangle(
-        "fill",
-        math.floor((love.mouse.getX() + x) / s) * s,
-        math.floor((love.mouse.getY() + y) / s) * s,
-        s, s
-    )
+    love.graphics.draw(
+        imgs[cur_machine],
+        math.floor((love.mouse.getX() + x) / s) * s + s / 2,
+        math.floor((love.mouse.getY() + y) / s) * s + s / 2,
+        cur_rot * math.pi / 2,
+        s / 256,
+        s / 256,
+        128,
+        128
+    );
 
     if love.mouse.isDown(1) then
         table.insert(world, {
