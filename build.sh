@@ -38,3 +38,13 @@ cd ..
 
 
 # linux doesn't really work yet
+
+
+# web
+bun x love.js -c -t factoryu factoryu.love factoryu-web
+cd factoryu-web
+rm -rf theme
+cp -r ../../support/build/web/theme .
+cp ../../support/build/web/index.html .
+zip -r -9 ../factoryu-web.zip .
+cd ..
