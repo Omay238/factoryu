@@ -97,14 +97,17 @@ function love.load()
 
     recipes = {
         smelter = {
-            { inputs = { ironore = 1 },   output = { item = "ironbar", count = 1 },   time = 1, power = -8 },
-            { inputs = { copperore = 1 }, output = { item = "copperbar", count = 1 }, time = 1, power = -8 }
+            { inputs = { ironore = 1 },              output = { item = "ironbar", count = 1 },   time = 1, power = -8 },
+            { inputs = { copperore = 1 },            output = { item = "copperbar", count = 1 }, time = 1, power = -8 },
+            { inputs = { coalore = 1, ironore = 1 }, output = { item = "steelbar", count = 1 },  time = 1, power = -12 },
         },
         presser = {
-            { inputs = { ironbar = 1 }, output = { item = "ironplate", count = 1 }, time = 1, power = -2 }
+            { inputs = { ironbar = 1 },  output = { item = "ironplate", count = 1 },  time = 1, power = -2 },
+            { inputs = { steelbar = 1 }, output = { item = "steelplate", count = 1 }, time = 1, power = -4 },
         },
         extruder = {
-            { inputs = { copperbar = 1 }, output = { item = "copperwire", count = 1 }, time = 1, power = -4 }
+            { inputs = { copperbar = 1 }, output = { item = "copperwire", count = 1 }, time = 1, power = -4 },
+            { inputs = { steelbar = 1 },  output = { item = "steelwire", count = 1 },  time = 1, power = -6 },
         },
         power = {
             { inputs = { coalore = 1 }, output = { item = nil }, time = 1, power = 20 }
@@ -119,6 +122,9 @@ function love.load()
         copperbar = 2,
         ironplate = 4,
         copperwire = 4,
+        steelbar = 4,
+        steelwire = 6,
+        steelplate = 8,
 
         miner = 25,
         smelter = 15,

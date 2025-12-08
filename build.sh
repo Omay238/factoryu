@@ -13,8 +13,9 @@ unzip love-11.5-win32.zip
 rm love-11.5-win32.zip
 mv love-11.5-win32 factoryu-windows
 
-rm factoryu-windows/changes.txt factoryu-windows/lovec.exe factoryu-windows/readme.txt
+rm factoryu-windows/changes.txt factoryu-windows/game.ico factoryu-windows/lovec.exe factoryu-windows/readme.txt
 cp ../README.md factoryu-windows
+cp ../support/build/windows/love.ico factoryu-windows
 cat factoryu.love >> factoryu-windows/love.exe
 mv factoryu-windows/love.exe factoryu-windows/factoryu.exe
 cd factoryu-windows
@@ -28,8 +29,10 @@ unzip love-11.5-macos.zip
 rm love-11.5-macos.zip
 mv love.app factoryu.app
 
+rm factoryu.app/Contents/Resources/GameIcon.icns factoryu.app/Contents/Resources/OS\ X\ AppIcon.icns
 cp ../support/build/macos/Info.plist factoryu.app/Contents
 cp ../support/build/macos/PkgInfo factoryu.app/Contents
+cp ../support/build/macos/Resources/OS\ X\ AppIcon.icns factoryu.app/Contents/Resources
 cp factoryu.love factoryu.app/Contents/resources
 cd factoryu.app
 zip -y -r -9 ../factoryu.app.zip .
