@@ -181,7 +181,7 @@ function love.update()
         end
 
         if tick % 20 == 0 then
-            for idx, machine in ipairs(world_machines) do
+            for _, machine in ipairs(world_machines) do
                 if machine.ticks < tick then
                     if machine.machine == "miner" then
                         if get_ore_from_pos(machine.x, machine.y) ~= nil then
@@ -275,7 +275,7 @@ function love.update()
                     table.remove(world_items, idx)
                 end
             end
-            for idx, machine in ipairs(world_machines) do
+            for _, machine in ipairs(world_machines) do
                 machine.ticks = machine.ticks + 1
             end
 
@@ -304,14 +304,12 @@ function love.keypressed(key, _, isrepeat)
     end
 end
 
-function love.mousepressed(
-    x, y, button, istouch, presses
-)
+function love.mousepressed(x, y)
     if is_menu then
-        if love.mouse.getX() > 30 and love.mouse.getX() < 260 and love.mouse.getY() > 120 and love.mouse.getY() < 180 then
+        if x > 30 and x < 260 and y > 120 and y < 180 then
             is_menu = false
         end
-        if love.mouse.getX() > 30 and love.mouse.getX() < 260 and love.mouse.getY() > 200 and love.mouse.getY() < 260 then
+        if x > 30 and x < 260 and y > 200 and y < 260 then
             love.event.quit(0)
         end
     end
