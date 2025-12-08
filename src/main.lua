@@ -74,12 +74,14 @@ function love.load()
         presser = love.graphics.newImage("assets/presser.png"),
         power = love.graphics.newImage("assets/power.png"),
         conveyor = love.graphics.newImage("assets/conveyor.png"),
+        extruder = love.graphics.newImage("assets/extruder.png"),
         crate = love.graphics.newImage("assets/crate.png"),
         ironore = love.graphics.newImage("assets/ironore.png"),
         ironbar = love.graphics.newImage("assets/ironbar.png"),
         ironplate = love.graphics.newImage("assets/ironplate.png"),
         copperore = love.graphics.newImage("assets/copperore.png"),
         copperbar = love.graphics.newImage("assets/copperbar.png"),
+        copperwire = love.graphics.newImage("assets/copperwire.png"),
         coalore = love.graphics.newImage("assets/coalore.png")
     }
 
@@ -87,6 +89,7 @@ function love.load()
         "miner",
         "smelter",
         "presser",
+        "extruder",
         "power",
         "conveyor",
         "crate"
@@ -100,6 +103,9 @@ function love.load()
         presser = {
             { inputs = { ironbar = 1 }, output = { item = "ironplate", count = 1 }, time = 1, power = -2 }
         },
+        extruder = {
+            { inputs = { copperbar = 1 }, output = { item = "copperwire", count = 1 }, time = 1, power = -4 }
+        },
         power = {
             { inputs = { coalore = 1 }, output = { item = nil }, time = 1, power = 20 }
         }
@@ -112,10 +118,12 @@ function love.load()
         ironbar = 2,
         copperbar = 2,
         ironplate = 4,
+        copperwire = 4,
 
         miner = 25,
         smelter = 15,
         presser = 10,
+        extruder = 10,
         power = 20,
         conveyor = 2,
         crate = 5
