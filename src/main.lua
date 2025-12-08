@@ -29,7 +29,7 @@ function get_conveyor_neighbors(tbl, mx, my)
 end
 
 function get_ore_from_pos(ox, oy)
-    local noise_val = love.math.noise(ox * 0.1, oy * 0.1)
+    local noise_val = love.math.noise(ox * 0.05, oy * 0.05)
     if noise_val < 0.1 then
         return "iron"
     elseif noise_val > 0.45 and noise_val < 0.55 then
@@ -156,8 +156,8 @@ function love.update()
         cur_machine = machines[5]
     elseif love.keyboard.isDown("6") then
         cur_machine = machines[6]
-        -- elseif love.keyboard.isDown("7") then
-        --     cur_machine = machines[7]
+    elseif love.keyboard.isDown("7") then
+        cur_machine = machines[7]
         -- elseif love.keyboard.isDown("8") then
         --     cur_machine = machines[8]
         -- elseif love.keyboard.isDown("9") then
