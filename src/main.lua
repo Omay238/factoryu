@@ -353,8 +353,14 @@ function love.draw()
         love.graphics.setFont(big_font)
         love.graphics.print("factoryμ", 30, 30)
         love.graphics.setFont(mid_font)
-        love.graphics.print("wasd to move\nq/e to rotate\n1-9 to select building\nclick to place\nright click to remove",
-            30, 380)
+        love.graphics.print(
+            "wasd to move\n" ..
+            "q/e to rotate\n" ..
+            "1-9 to select building\n" ..
+            "click to place\n" ..
+            "right click to remove\n" ..
+            "scroll to zoom",
+            30, 350)
         love.graphics.rectangle("line", 30, 120, 230, 60)
         love.graphics.print("play", 60, 130)
         love.graphics.rectangle("line", 30, 200, 230, 60)
