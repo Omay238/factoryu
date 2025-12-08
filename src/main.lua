@@ -365,6 +365,9 @@ function love.draw()
         love.graphics.print("play", 60, 130)
         love.graphics.rectangle("line", 30, 200, 230, 60)
         love.graphics.print("don't play", 60, 210)
+
+        love.graphics.setFont(font)
+        love.graphics.print("UwU", 700, 500)
     else
         love.graphics.translate(-x, -y)
 
@@ -506,7 +509,8 @@ function love.draw()
             end
         end
 
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(1, 0.5, 0.5, 1)
+        love.graphics.setFont(mid_font)
 
         love.graphics.print("$" .. money, x, y)
         love.graphics.print(power .. "MW", x, y + 32)
