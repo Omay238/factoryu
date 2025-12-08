@@ -89,7 +89,10 @@ function love.load()
         copperore = love.graphics.newImage("assets/copperore.png"),
         copperbar = love.graphics.newImage("assets/copperbar.png"),
         copperwire = love.graphics.newImage("assets/copperwire.png"),
-        coalore = love.graphics.newImage("assets/coalore.png")
+        coalore = love.graphics.newImage("assets/coalore.png"),
+        steelbar = love.graphics.newImage("assets/steelbar.png"),
+        steelplate = love.graphics.newImage("assets/steelplate.png"),
+        steelwire = love.graphics.newImage("assets/steelwire.png"),
     }
 
     machines = {
