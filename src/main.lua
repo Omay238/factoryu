@@ -63,7 +63,7 @@ function love.load()
 
     x, y = 0, 0
     s = 64
-    m = 3
+    m = 5
     tick = 1
 
     money = 100
@@ -148,17 +148,19 @@ end
 
 function love.update()
     if is_menu == false then
+        local pan = m * (s / 64)
+
         if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
-            y = y - m
+            y = y - pan
         end
         if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
-            y = y + m
+            y = y + pan
         end
         if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
-            x = x - m
+            x = x - pan
         end
         if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
-            x = x + m
+            x = x + pan
         end
 
         if love.keyboard.isDown("1") then
@@ -316,6 +318,25 @@ function love.mousepressed(x, y)
             love.event.quit(0)
         end
     end
+end
+
+function love.wheelmoved(_, dy)
+    -- we do NOT need all this space lmaoooo
+    local old_s         = s
+
+    local step          = 8
+    local min_s         = 16
+    local max_s         = 256
+    s                   = math.max(min_s, math.min(max_s, s + dy * step))
+
+    local sw            = love.graphics.getWidth()
+    local sh            = love.graphics.getHeight()
+
+    local centre_tile_x = (x + sw / 2) / old_s
+    local centre_tile_y = (y + sh / 2) / old_s
+
+    x                   = centre_tile_x * s - sw / 2
+    y                   = centre_tile_y * s - sh / 2
 end
 
 function love.draw()
