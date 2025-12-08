@@ -91,6 +91,19 @@ function love.load()
         "conveyor",
         "crate"
     }
+
+    recipes = {
+        smelter = {
+            { inputs = { ironore = 1 },   output = { item = "ironbar", count = 1 },   time = 1, power = -8 },
+            { inputs = { copperore = 1 }, output = { item = "copperbar", count = 1 }, time = 1, power = -8 }
+        },
+        presser = {
+            { inputs = { ironbar = 1 }, output = { item = "ironplate", count = 1 }, time = 1, power = -2 }
+        },
+        power = {
+            { inputs = { coalore = 1 }, output = { item = nil }, time = 1, power = 20 }
+        }
+    }
 end
 
 function love.update()
@@ -146,35 +159,6 @@ function love.update()
                         })
                     end
                     power = power - 4
-                elseif machine.machine == "smelter" then
-                    local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil and not is_animating(item[2]) then
-                        if item[2].item == "ironore" and item[2].age > 0 then
-                            item[2].item = "ironbar"
-                            item[2].age = 0
-                        elseif item[2].item == "copperore" and item[2].age > 0 then
-                            item[2].item = "copperbar"
-                            item[2].age = 0
-                        end
-                    end
-                    power = power - 8
-                elseif machine.machine == "presser" then
-                    local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil and not is_animating(item[2]) then
-                        if item[2].item == "ironbar" and item[2].age > 0 then
-                            item[2].item = "ironplate"
-                            item[2].age = 0
-                        end
-                    end
-                    power = power - 2
-                elseif machine.machine == "power" then
-                    local item = get_world_elem(world_items, machine.x, machine.y)
-                    if item ~= nil and not is_animating(item[2]) then
-                        if item[2].item == "coalore" then
-                            table.remove(world_items, item[1])
-                            power = power + 16
-                        end
-                    end
                 elseif machine.machine == "crate" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
                     if item ~= nil and not is_animating(item[2]) then
@@ -196,6 +180,28 @@ function love.update()
                         elseif item[2].item == "coalore" then
                             money = money + 1
                             table.remove(world_items, item[1])
+                        end
+                    end
+                elseif machine.machine ~= "conveyor" then
+                    local recs = recipes[machine.machine]
+                    if recs then
+                        local item = get_world_elem(world_items, machine.x, machine.y)
+                        if item ~= nil and not is_animating(item[2]) then
+                            for _, rec in ipairs(recs) do
+                                local needed = rec.inputs[item[2].item]
+                                if needed and needed >= 1 then
+                                    if machine.ticks % rec.time == 0 then
+                                        if rec.output.item then
+                                            item[2].item = rec.output.item
+                                            item[2].age = 0
+                                        else
+                                            table.remove(world_items, item[1])
+                                        end
+                                    end
+                                    power = power + rec.power
+                                    break
+                                end
+                            end
                         end
                     end
                 elseif machine.machine == "conveyor" then
