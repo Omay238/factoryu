@@ -104,6 +104,22 @@ function love.load()
             { inputs = { coalore = 1 }, output = { item = nil }, time = 1, power = 20 }
         }
     }
+
+    values = {
+        ironore = 1,
+        copperore = 1,
+        coalore = 1,
+        ironbar = 2,
+        copperbar = 2,
+        ironplate = 4,
+
+        miner = 25,
+        smelter = 15,
+        presser = 10,
+        power = 20,
+        conveyor = 2,
+        crate = 5
+    }
 end
 
 function love.update()
@@ -162,25 +178,8 @@ function love.update()
                 elseif machine.machine == "crate" then
                     local item = get_world_elem(world_items, machine.x, machine.y)
                     if item ~= nil and not is_animating(item[2]) then
-                        if item[2].item == "ironore" then
-                            money = money + 1
-                            table.remove(world_items, item[1])
-                        elseif item[2].item == "ironbar" then
-                            money = money + 4
-                            table.remove(world_items, item[1])
-                        elseif item[2].item == "ironplate" then
-                            money = money + 8
-                            table.remove(world_items, item[1])
-                        elseif item[2].item == "copperore" then
-                            money = money + 1
-                            table.remove(world_items, item[1])
-                        elseif item[2].item == "copperbar" then
-                            money = money + 4
-                            table.remove(world_items, item[1])
-                        elseif item[2].item == "coalore" then
-                            money = money + 1
-                            table.remove(world_items, item[1])
-                        end
+                        money = money + values[item[2].item]
+                        table.remove(world_items, item[1])
                     end
                 elseif machine.machine ~= "conveyor" then
                     local recs = recipes[machine.machine]
@@ -387,33 +386,9 @@ function love.draw()
     if love.mouse.isDown(1) then
         local pmoney = money
         if elem ~= nil then
-            if elem[2].machine == "miner" then
-                money = money + 25
-            elseif elem[2].machine == "smelter" then
-                money = money + 15
-            elseif elem[2].machine == "presser" then
-                money = money + 10
-            elseif elem[2].machine == "power" then
-                money = money + 20
-            elseif elem[2].machine == "conveyor" then
-                money = money + 2
-            elseif elem[2].machine == "crate" then
-                money = money + 5
-            end
+            money = money + values[elem[2].machine]
         end
-        if cur_machine == "miner" then
-            money = money - 25
-        elseif cur_machine == "smelter" then
-            money = money - 15
-        elseif cur_machine == "presser" then
-            money = money - 10
-        elseif cur_machine == "power" then
-            money = money - 20
-        elseif cur_machine == "conveyor" then
-            money = money - 2
-        elseif cur_machine == "crate" then
-            money = money - 5
-        end
+        money = money - values[cur_machine]
         if money < 0 then
             money = pmoney
         else
@@ -432,20 +407,7 @@ function love.draw()
     end
     if love.mouse.isDown(2) then
         if elem ~= nil then
-            if elem[2].machine == "miner" then
-                money = money + 25
-            elseif elem[2].machine == "smelter" then
-                money = money + 15
-            elseif elem[2].machine == "presser" then
-                money = money + 10
-            elseif elem[2].machine == "power" then
-                money = money + 20
-            elseif elem[2].machine == "conveyor" then
-                money = money + 2
-            elseif elem[2].machine == "crate" then
-                money = money + 5
-            end
-
+            money = money + values[elem[2].machine]
             table.remove(world_machines, elem[1])
         end
     end
